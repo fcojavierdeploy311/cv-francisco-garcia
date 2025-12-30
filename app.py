@@ -11,8 +11,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. ESTILOS CSS (DISEÑO INTOCABLE & STICKY HEADER) ---
-# Nota para IA Futura: Este bloque define la identidad visual y la estructura fija. NO MODIFICAR sin autorización expresa.
+# --- 2. ESTILOS CSS (DISEÑO INTOCABLE & HEADER FIJO RESPONSIVO) ---
+# Nota: Configuración de header fijo con corrección de z-index y espaciado dinámico.
 st.markdown("""
     <style>
     /* --- IMPORTAR FUENTE ROBOTO --- */
@@ -21,88 +21,127 @@ st.markdown("""
     /* --- VARIABLES DE COLOR --- */
     :root {
         --primary-color: #0A2463; /* Azul Corporativo */
-        --bg-color: #FFFFFF;
     }
     
-    /* --- APLICAR FUENTE ROBOTO GLOBAL --- */
+    /* --- FUENTE GLOBAL --- */
     html, body, [class*="css"] {
         font-family: 'Roboto', sans-serif;
     }
 
-    /* --- OPTIMIZACIÓN DE ESPACIO SUPERIOR --- */
-    .block-container {
-        padding-top: 2rem !important; /* Reduce el espacio vacío arriba */
-        padding-bottom: 2rem !important;
+    /* --- HEADER FIJO MEJORADO --- */
+    .sticky-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: white;
+        /* Z-INDEX: 90 para estar sobre el contenido, pero debajo del Sidebar (100) */
+        z-index: 90; 
+        padding: 15px 20px;
+        border-bottom: 3px solid #0A2463;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        height: 90px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        transition: padding-left 0.3s ease; /* Suaviza el cambio */
+    }
+    
+    /* --- RESPONSIVIDAD (MEDIA QUERIES) --- */
+    
+    /* PANTALLAS GRANDES (PC/Laptop): Dejamos espacio para el Sidebar abierto */
+    @media (min-width: 992px) {
+        .sticky-header {
+            padding-left: 22rem; /* ~350px para librar la barra lateral */
+        }
+    }
+    
+    /* PANTALLAS MEDIANAS/TABLETS */
+    @media (min-width: 576px) and (max-width: 991px) {
+        .sticky-header {
+            padding-left: 6rem; /* Espacio para la flecha */
+        }
+    }
+    
+    /* CELULARES */
+    @media (max-width: 575px) {
+        .sticky-header {
+            padding-left: 1rem;
+            height: auto; /* Altura flexible en celular */
+            padding-top: 3.5rem; /* Espacio para la barra superior nativa del cel */
+        }
+        .header-title {
+            font-size: 18px !important;
+        }
     }
 
-    /* --- ENCABEZADO PEGAJOSO (STICKY HEADER) --- */
-    .sticky-header {
-        position: sticky;
-        top: 0;
-        z-index: 999;
-        background-color: white;
-        padding: 10px 0px;
-        border-bottom: 2px solid #E6E9EF;
-        margin-bottom: 20px;
+    /* --- EMPUJAR CONTENIDO ABAJO --- */
+    .block-container {
+        padding-top: 120px !important; 
+        padding-bottom: 2rem !important;
     }
     
+    /* --- RESCATE DE LA FLECHA DEL MENÚ --- */
+    header[data-testid="stHeader"] {
+        background-color: transparent !important;
+        /* No ocultamos la barra, solo la hacemos transparente para poder dar click a la flecha */
+    }
+
+    /* --- TIPOGRAFÍA DEL HEADER --- */
     .header-title {
         color: var(--primary-color) !important;
-        font-size: 28px !important; /* Tamaño profesional, no gigante */
+        font-size: 26px !important;
         font-weight: 700;
+        line-height: 1.2;
         margin: 0;
     }
-    
     .header-subtitle {
         color: #555;
-        font-size: 16px !important;
+        font-size: 15px !important;
         font-weight: 300;
         margin: 0;
     }
 
-    /* --- ESTILOS DE COMPONENTES --- */
+    /* --- ESTILOS GENERALES --- */
     h1, h2, h3, h4 { color: var(--primary-color) !important; }
     
-    /* --- FOTO DE PERFIL (ÓVALO VERTICAL) --- */
+    /* Foto de Perfil */
     [data-testid="stSidebar"] img {
-        width: 160px !important;   
-        height: 210px !important;  
-        border-radius: 50%;        
+        width: 160px !important; 
+        height: 210px !important;
+        border-radius: 50%; 
         border: 4px solid #0A2463;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
         object-fit: cover; 
-        margin-bottom: 20px;
+        margin: 0 auto 20px auto; 
+        display: block;
     }
 
-    /* --- BARRAS DE PROGRESO & TARJETAS --- */
-    .stProgress > div > div > div > div { background-color: var(--primary-color); }
+    /* Tarjetas (Expanders) */
     .stExpander { 
-        border: 1px solid #E6E9EF;
+        border: 1px solid #E6E9EF; 
         border-radius: 12px; 
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05); 
-        background-color: white;
-        margin-bottom: 15px;
+        background: white; 
+        margin-bottom: 15px; 
     }
     
-    /* --- MÉTRICAS --- */
+    /* Métricas */
     div[data-testid="stMetricValue"] { font-size: 26px; color: var(--primary-color); }
     
-    /* --- BOTÓN DE ENLACE --- */
+    /* Barras de Progreso */
+    .stProgress > div > div > div > div { background-color: var(--primary-color); }
+    
+    /* Botón Drive Personalizado */
     .stLinkButton > a {
-        background-color: #ffffff;
-        color: #0A2463;
+        background: white; 
+        color: #0A2463; 
         border: 2px solid #0A2463;
-        font-weight: bold;
-        display: block;
-        text-align: center;
+        font-weight: bold; 
+        text-align: center; 
         border-radius: 5px;
     }
-    .stLinkButton > a:hover {
-        background-color: #0A2463;
-        color: #ffffff;
+    .stLinkButton > a:hover { 
+        background: #0A2463; 
+        color: white; 
     }
     </style>
     """, unsafe_allow_html=True)
@@ -117,7 +156,7 @@ with st.sidebar:
         st.markdown('<div style="text-align: center;">👨‍🔬 (Sin Foto)</div>', unsafe_allow_html=True)
 
     st.title("Francisco Javier García Santos")
-    st.caption("**Químico Biólogo | Lead de Calidad & DevOps**")
+    st.caption("**Químico Clínico | Lead de Calidad & DevOps**")
     st.markdown("---")
     
     st.markdown("#### 🆔 Credenciales")
@@ -135,6 +174,8 @@ with st.sidebar:
     # --- ESTRATEGIA: PRIVACIDAD POR DISEÑO (DLP) ---
     st.markdown("#### 📂 Evidencia Documental")
     
+    # ENLACE INTEGRADO (Versión Pública Sanitizada)
+    # Al usar "Administrar Versiones" en Drive, el ID se mantiene igual.
     url_dossier = "https://drive.google.com/file/d/1UPKlftUKFoMNc_kImouIyvFsHPwkXapN/view?usp=drive_link" 
     
     st.link_button(
@@ -144,6 +185,7 @@ with st.sidebar:
         help="Documento sanitizado. Datos sensibles (INE, Dirección) protegidos."
     )
     
+    # NOTA DE COMPETENCIA EN SEGURIDAD
     st.caption("🔒 **Nota de Seguridad:**")
     st.markdown("""
     <div style="font-size: 12px; color: #666;">
@@ -157,9 +199,9 @@ with st.sidebar:
     st.write("📞 **Tel:** 951 396 9365")
     st.write("📧 **Email:** qbfranciscojavier@gmail.com")
 
-# --- 4. CUERPO PRINCIPAL (CON STICKY HEADER) ---
+# --- 4. CUERPO PRINCIPAL (CON STICKY HEADER HTML) ---
 
-# Implementación del Encabezado Pegajoso HTML puro para que funcione el CSS
+# Inyección HTML del Header Fijo
 st.markdown("""
     <div class="sticky-header">
         <div class="header-title">🧬 Arquitectura de Sistemas de Calidad & Lab. Clínico</div>
@@ -167,6 +209,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
+# Texto introductorio (aparecerá debajo del header gracias al padding-top del CSS)
 st.markdown("""
 <div style="background-color: #F4F7F9; padding: 20px; border-radius: 10px; border-left: 5px solid #0A2463; font-style: italic; font-size: 16px; color: #333; margin-top: 10px;">
 "Transformación Digital Integral: De la operación manual a un ecosistema de <b>Alta Disponibilidad, Trazabilidad Total y Soberanía de Datos</b>."
