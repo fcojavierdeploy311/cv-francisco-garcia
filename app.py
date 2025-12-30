@@ -35,8 +35,8 @@ st.markdown("""
         left: 0;
         width: 100%;
         background-color: white;
-        /* Z-INDEX: 90 para estar sobre el contenido, pero debajo del Sidebar (100) */
-        z-index: 90; 
+        /* Z-INDEX: 999999 para ganar la pelea contra elementos de Streamlit Cloud */
+        z-index: 999999; 
         padding: 15px 20px;
         border-bottom: 3px solid #0A2463;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -84,7 +84,11 @@ st.markdown("""
     /* --- RESCATE DE LA FLECHA DEL MENÚ --- */
     header[data-testid="stHeader"] {
         background-color: transparent !important;
-        /* No ocultamos la barra, solo la hacemos transparente para poder dar click a la flecha */
+        pointer-events: none; /* Permite clicks a través de la barra transparente */
+    }
+    /* Reactivamos clicks solo en el botón del menú */
+    header[data-testid="stHeader"] button {
+        pointer-events: auto;
     }
 
     /* --- TIPOGRAFÍA DEL HEADER --- */
@@ -196,7 +200,7 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("#### 📬 Contacto")
     st.write("📍 **Base:** Oaxaca, México")
-    st.write("📞 **Tel:** 951 396 9365")
+    # Teléfono eliminado por privacidad (GitHub Safety)
     st.write("📧 **Email:** qbfranciscojavier@gmail.com")
 
 # --- 4. CUERPO PRINCIPAL (CON STICKY HEADER HTML) ---
@@ -261,11 +265,27 @@ with tab1:
             * **Arquitectura Híbrida:** Frontend veloz en Firebase + Backend de procesamiento en Streamlit.
             """)
 
-# --- PESTAÑA 2: CASOS OPERATIVOS ---
+# --- PESTAÑA 2: CASOS OPERATIVOS (INCLUYE META-CASO BLINDADO) ---
 with tab2:
     st.subheader("📌 Soluciones de Impacto Inmediato")
     st.markdown("Implementaciones que resolvieron dolores diarios de operación, finanzas y seguridad.")
     st.divider()
+
+    # --- META-CASO: EL PROPIO PROYECTO (VERSIÓN COMERCIAL) ---
+    with st.expander("💎 Caso Meta: Esta Plataforma (CV Interactivo)", expanded=True):
+        col_meta1, col_meta2 = st.columns([1, 2])
+        with col_meta1:
+            st.metric("Time-to-Market", "< 8 Horas", "Prototipado Rápido")
+            # CAMBIO ESTRATÉGICO: Tecnología en lugar de precio $0.00
+            st.metric("Arquitectura", "Serverless", "Alta Disponibilidad") 
+        with col_meta2:
+            st.markdown("""
+            **El Reto:** Un CV estático (PDF) dice *que* sabes programar, pero no *demuestra* cómo lo haces.
+            **La Solución:** Desarrollo de esta PWA (Progressive Web App) demostrando capacidad de despliegue.
+            * **Metodología Ágil:** Enfoque MVP (Producto Mínimo Viable) priorizando funcionalidad core.
+            * **Eficiencia de Costos:** Implementación de arquitectura en la nube optimizada para reducir el *Overhead* operativo (OPEX) sin sacrificar rendimiento.
+            * **Stack:** Python + Streamlit para eliminar la deuda técnica del Frontend.
+            """)
 
     st.markdown("#### 🚑 Área: Operaciones & Logística")
     col_a, col_b = st.columns(2)
@@ -411,7 +431,7 @@ with tab5:
         with st.expander("🔹 Gestión de Crisis & Stakeholders"):
             st.markdown("""
             **Enfoque:** Resolución asertiva de conflictos bajo presión.
-            * **Logro:** Negociación exitosa con proveedores externos (Caso CClab) manteniendo la operatividad durante fallos críticos.
+            * **Logro:** Negociación exitosa con proveedores externos (Caso Consultores Externos de Calidad) manteniendo la operatividad durante fallos críticos.
             * **Comunicación:** Traducción de riesgos técnicos a lenguaje ejecutivo para la Dirección General.
             """)
 
