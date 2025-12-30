@@ -11,17 +11,57 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. ESTILOS CSS (DISEÑO INTOCABLE) ---
+# --- 2. ESTILOS CSS (DISEÑO INTOCABLE & STICKY HEADER) ---
+# Nota para IA Futura: Este bloque define la identidad visual y la estructura fija. NO MODIFICAR sin autorización expresa.
 st.markdown("""
     <style>
+    /* --- IMPORTAR FUENTE ROBOTO --- */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
     /* --- VARIABLES DE COLOR --- */
     :root {
         --primary-color: #0A2463; /* Azul Corporativo */
+        --bg-color: #FFFFFF;
+    }
+    
+    /* --- APLICAR FUENTE ROBOTO GLOBAL --- */
+    html, body, [class*="css"] {
+        font-family: 'Roboto', sans-serif;
     }
 
-    /* --- TIPOGRAFÍA Y ENCABEZADOS --- */
+    /* --- OPTIMIZACIÓN DE ESPACIO SUPERIOR --- */
+    .block-container {
+        padding-top: 2rem !important; /* Reduce el espacio vacío arriba */
+        padding-bottom: 2rem !important;
+    }
+
+    /* --- ENCABEZADO PEGAJOSO (STICKY HEADER) --- */
+    .sticky-header {
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        background-color: white;
+        padding: 10px 0px;
+        border-bottom: 2px solid #E6E9EF;
+        margin-bottom: 20px;
+    }
+    
+    .header-title {
+        color: var(--primary-color) !important;
+        font-size: 28px !important; /* Tamaño profesional, no gigante */
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .header-subtitle {
+        color: #555;
+        font-size: 16px !important;
+        font-weight: 300;
+        margin: 0;
+    }
+
+    /* --- ESTILOS DE COMPONENTES --- */
     h1, h2, h3, h4 { color: var(--primary-color) !important; }
-    .big-font { font-size:20px !important; }
     
     /* --- FOTO DE PERFIL (ÓVALO VERTICAL) --- */
     [data-testid="stSidebar"] img {
@@ -37,10 +77,8 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* --- BARRAS DE PROGRESO --- */
+    /* --- BARRAS DE PROGRESO & TARJETAS --- */
     .stProgress > div > div > div > div { background-color: var(--primary-color); }
-
-    /* --- TARJETAS (Expanders) --- */
     .stExpander { 
         border: 1px solid #E6E9EF;
         border-radius: 12px; 
@@ -51,15 +89,8 @@ st.markdown("""
     
     /* --- MÉTRICAS --- */
     div[data-testid="stMetricValue"] { font-size: 26px; color: var(--primary-color); }
-    div[data-testid="stMetricLabel"] { font-size: 14px; }
     
-    /* --- PROYECTO ESTRELLA --- */
-    .crown-project {
-        border-left: 5px solid #FFD700 !important;
-        background-color: #FFFDF5 !important;
-    }
-    
-    /* --- BOTÓN DE ENLACE DE DRIVE --- */
+    /* --- BOTÓN DE ENLACE --- */
     .stLinkButton > a {
         background-color: #ffffff;
         color: #0A2463;
@@ -76,7 +107,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. SIDEBAR (IDENTIDAD + DOSSIER CLOUD) ---
+# --- 3. SIDEBAR (IDENTIDAD + ESTRATEGIA DE PRIVACIDAD) ---
 with st.sidebar:
     try:
         image = Image.open('foto_perfil.jpg')
@@ -86,7 +117,7 @@ with st.sidebar:
         st.markdown('<div style="text-align: center;">👨‍🔬 (Sin Foto)</div>', unsafe_allow_html=True)
 
     st.title("Francisco Javier García Santos")
-    st.caption("**Químico Clínico | Lead de Calidad & DevOps**")
+    st.caption("**Químico Biólogo | Lead de Calidad & DevOps**")
     st.markdown("---")
     
     st.markdown("#### 🆔 Credenciales")
@@ -101,31 +132,43 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # --- ESTRATEGIA: ACTUALIZACIÓN SILENCIOSA (CLOUD LINK) ---
+    # --- ESTRATEGIA: PRIVACIDAD POR DISEÑO (DLP) ---
     st.markdown("#### 📂 Evidencia Documental")
     
-    # ENLACE INTEGRADO (REAL)
     url_dossier = "https://drive.google.com/file/d/1UPKlftUKFoMNc_kImouIyvFsHPwkXapN/view?usp=drive_link" 
     
     st.link_button(
-        label="📥 Ver Dossier Integral Certificaciones", 
+        label="📥 Dossier Técnico (Versión Pública)", 
         url=url_dossier, 
-        use_container_width=True
+        use_container_width=True,
+        help="Documento sanitizado. Datos sensibles (INE, Dirección) protegidos."
     )
-    st.caption("*Acceso directo a archivo controlado en la nube.*")
+    
+    st.caption("🔒 **Nota de Seguridad:**")
+    st.markdown("""
+    <div style="font-size: 12px; color: #666;">
+    Este portafolio aplica principios de <b>Minimización de Datos</b>. La documentación legal completa (INE, Constancia Fiscal, Acta) se encuentra resguardada en <i>Cold Storage</i> y disponible exclusivamente para procesos formales de contratación.
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown("#### 📬 Contacto")
     st.write("📍 **Base:** Oaxaca, México")
     st.write("📞 **Tel:** 951 396 9365")
     st.write("📧 **Email:** qbfranciscojavier@gmail.com")
-    
-    # --- FIN DEL SIDEBAR (Botón rojo eliminado) ---
 
-# --- 4. CUERPO PRINCIPAL ---
-st.title("🧬 Arquitectura de Sistemas de Calidad & Laboratorio Clínico")
+# --- 4. CUERPO PRINCIPAL (CON STICKY HEADER) ---
+
+# Implementación del Encabezado Pegajoso HTML puro para que funcione el CSS
 st.markdown("""
-<div style="background-color: #F4F7F9; padding: 20px; border-radius: 10px; border-left: 5px solid #0A2463; font-style: italic; font-size: 18px; color: #333;">
+    <div class="sticky-header">
+        <div class="header-title">🧬 Arquitectura de Sistemas de Calidad & Lab. Clínico</div>
+        <div class="header-subtitle">Portafolio Técnico de Ingeniería de Procesos y Automatización</div>
+    </div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div style="background-color: #F4F7F9; padding: 20px; border-radius: 10px; border-left: 5px solid #0A2463; font-style: italic; font-size: 16px; color: #333; margin-top: 10px;">
 "Transformación Digital Integral: De la operación manual a un ecosistema de <b>Alta Disponibilidad, Trazabilidad Total y Soberanía de Datos</b>."
 </div>
 <br>
@@ -134,7 +177,7 @@ st.markdown("""
 # --- 5. ESTRUCTURA DE PESTAÑAS ---
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "👑 La Joya de la Corona", 
-    "🚀 Casos de Éxito (Operativos)", 
+    "🚀 Casos de Éxito", 
     "⚙️ Infraestructura DevOps", 
     "🛠️ Stack & Bitácora",
     "🧠 Liderazgo & Soft Skills"
