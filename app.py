@@ -11,8 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. ESTILOS CSS (DISEÑO INTOCABLE & HEADER FIJO RESPONSIVO) ---
-# Nota: Configuración de header fijo con corrección de z-index y espaciado dinámico.
+# --- 2. ESTILOS CSS (CORRECCIÓN DE CAPAS Z-INDEX) ---
 st.markdown("""
     <style>
     /* --- IMPORTAR FUENTE ROBOTO --- */
@@ -28,15 +27,15 @@ st.markdown("""
         font-family: 'Roboto', sans-serif;
     }
 
-    /* --- HEADER FIJO MEJORADO --- */
+    /* --- HEADER FIJO (AJUSTADO) --- */
     .sticky-header {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         background-color: white;
-        /* Z-INDEX: 999999 para ganar la pelea contra elementos de Streamlit Cloud */
-        z-index: 999999; 
+        /* CORRECCIÓN AQUÍ: Bajamos a 90 para que el Sidebar (que suele ser 100) quede encima */
+        z-index: 90; 
         padding: 15px 20px;
         border-bottom: 3px solid #0A2463;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -44,22 +43,31 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         justify-content: center;
-        transition: padding-left 0.3s ease; /* Suaviza el cambio */
+        transition: padding-left 0.3s ease; 
+    }
+    
+    /* --- FORZAR QUE EL SIDEBAR Y BOTONES ESTÉN ENCIMA --- */
+    section[data-testid="stSidebar"] {
+        z-index: 100 !important; /* El sidebar gana */
+    }
+    header[data-testid="stHeader"] {
+        z-index: 101 !important; /* Las flechas ganan a todo */
+        background-color: transparent !important;
     }
     
     /* --- RESPONSIVIDAD (MEDIA QUERIES) --- */
     
-    /* PANTALLAS GRANDES (PC/Laptop): Dejamos espacio para el Sidebar abierto */
+    /* PANTALLAS GRANDES (PC/Laptop) */
     @media (min-width: 992px) {
         .sticky-header {
-            padding-left: 22rem; /* ~350px para librar la barra lateral */
+            padding-left: 22rem; 
         }
     }
     
     /* PANTALLAS MEDIANAS/TABLETS */
     @media (min-width: 576px) and (max-width: 991px) {
         .sticky-header {
-            padding-left: 6rem; /* Espacio para la flecha */
+            padding-left: 6rem; 
         }
     }
     
@@ -67,8 +75,8 @@ st.markdown("""
     @media (max-width: 575px) {
         .sticky-header {
             padding-left: 1rem;
-            height: auto; /* Altura flexible en celular */
-            padding-top: 3.5rem; /* Espacio para la barra superior nativa del cel */
+            height: auto; 
+            padding-top: 3.5rem; 
         }
         .header-title {
             font-size: 18px !important;
@@ -79,16 +87,6 @@ st.markdown("""
     .block-container {
         padding-top: 120px !important; 
         padding-bottom: 2rem !important;
-    }
-    
-    /* --- RESCATE DE LA FLECHA DEL MENÚ --- */
-    header[data-testid="stHeader"] {
-        background-color: transparent !important;
-        pointer-events: none; /* Permite clicks a través de la barra transparente */
-    }
-    /* Reactivamos clicks solo en el botón del menú */
-    header[data-testid="stHeader"] button {
-        pointer-events: auto;
     }
 
     /* --- TIPOGRAFÍA DEL HEADER --- */
@@ -160,7 +158,7 @@ with st.sidebar:
         st.markdown('<div style="text-align: center;">👨‍🔬 (Sin Foto)</div>', unsafe_allow_html=True)
 
     st.title("Francisco Javier García Santos")
-    st.caption("**Químico Clínico | Lead de Calidad & DevOps**")
+    st.caption("**Químico Clínico | Gerente de Calidad & Transformación Digital**")
     st.markdown("---")
     
     st.markdown("#### 🆔 Credenciales")
@@ -179,7 +177,6 @@ with st.sidebar:
     st.markdown("#### 📂 Evidencia Documental")
     
     # ENLACE INTEGRADO (Versión Pública Sanitizada)
-    # Al usar "Administrar Versiones" en Drive, el ID se mantiene igual.
     url_dossier = "https://drive.google.com/file/d/1UPKlftUKFoMNc_kImouIyvFsHPwkXapN/view?usp=drive_link" 
     
     st.link_button(
@@ -200,7 +197,6 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("#### 📬 Contacto")
     st.write("📍 **Base:** Oaxaca, México")
-    # Teléfono eliminado por privacidad (GitHub Safety)
     st.write("📧 **Email:** qbfranciscojavier@gmail.com")
 
 # --- 4. CUERPO PRINCIPAL (CON STICKY HEADER HTML) ---
@@ -213,10 +209,10 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Texto introductorio (aparecerá debajo del header gracias al padding-top del CSS)
+# Texto introductorio
 st.markdown("""
 <div style="background-color: #F4F7F9; padding: 20px; border-radius: 10px; border-left: 5px solid #0A2463; font-style: italic; font-size: 16px; color: #333; margin-top: 10px;">
-"Transformación Digital Integral: De la operación manual a un ecosistema de <b>Alta Disponibilidad, Trazabilidad Total y Soberanía de Datos</b>."
+"Gestión de Calidad 4.0: Elevando el estándar del Laboratorio Clínico mediante la <b>Automatización de Procesos, Seguridad del Paciente y Toma de Decisiones Basada en Datos</b>."
 </div>
 <br>
 """, unsafe_allow_html=True)
@@ -225,7 +221,7 @@ st.markdown("""
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "👑 La Joya de la Corona", 
     "🚀 Casos de Éxito", 
-    "⚙️ Infraestructura DevOps", 
+    "⚙️ Ingeniería Clínica & Automatización", 
     "🛠️ Stack & Bitácora",
     "🧠 Liderazgo & Soft Skills"
 ])
@@ -265,18 +261,17 @@ with tab1:
             * **Arquitectura Híbrida:** Frontend veloz en Firebase + Backend de procesamiento en Streamlit.
             """)
 
-# --- PESTAÑA 2: CASOS OPERATIVOS (INCLUYE META-CASO BLINDADO) ---
+# --- PESTAÑA 2: CASOS OPERATIVOS ---
 with tab2:
     st.subheader("📌 Soluciones de Impacto Inmediato")
     st.markdown("Implementaciones que resolvieron dolores diarios de operación, finanzas y seguridad.")
     st.divider()
 
-    # --- META-CASO: EL PROPIO PROYECTO (VERSIÓN COMERCIAL) ---
+    # --- META-CASO: EL PROPIO PROYECTO ---
     with st.expander("💎 Caso Meta: Esta Plataforma (CV Interactivo)", expanded=True):
         col_meta1, col_meta2 = st.columns([1, 2])
         with col_meta1:
             st.metric("Time-to-Market", "< 8 Horas", "Prototipado Rápido")
-            # CAMBIO ESTRATÉGICO: Tecnología en lugar de precio $0.00
             st.metric("Arquitectura", "Serverless", "Alta Disponibilidad") 
         with col_meta2:
             st.markdown("""
@@ -343,8 +338,8 @@ with tab2:
 
 # --- PESTAÑA 3: INFRAESTRUCTURA ---
 with tab3:
-    st.subheader("⚙️ Infraestructura & Código (Hard Skills)")
-    st.markdown("Capacidad técnica para el despliegue de **Servidores Propios (Self-Hosted)** y desarrollo a medida.")
+    st.subheader("⚙️ Ingeniería Clínica & Automatización")
+    st.markdown("Capacidad técnica para el despliegue de **Servidores Propios (Self-Hosted)** aplicados a la mejora continua del laboratorio.")
     
     c_hard1, c_hard2 = st.columns(2)
     with c_hard1:
@@ -406,11 +401,37 @@ with tab4:
         st.progress(85)
         
     st.divider()
+    
+    # --- BITÁCORA CON FILTRO POR ÁREA (MODIFICACIÓN KAI) ---
     st.subheader("📈 Bitácora de Aprendizaje")
     st.caption("Historial de capacitación técnica continua (2022-2025).")
+    
     try:
         df = pd.read_csv("base_datos_cursos.csv")
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        
+        # 1. Preparar lista de opciones única (Normalizada)
+        # SELECCIONAMOS LA COLUMNA "Area" ESPECÍFICAMENTE
+        columna_filtro = "Area"
+        # Creamos lista ordenada y única para el menú
+        lista_cursos = sorted(df[columna_filtro].astype(str).unique().tolist())
+        
+        # 2. Menú Desplegable (Selectbox)
+        curso_seleccionado = st.selectbox(
+            "🔍 Seleccione el Área:",
+            options=lista_cursos,
+            index=None,
+            placeholder="Seleccione una opción de la lista..."
+        )
+        
+        # 3. Lógica de Filtrado Exacto
+        if curso_seleccionado:
+            # Filtramos donde la columna coincida EXACTAMENTE con la selección
+            df_filtered = df[df[columna_filtro].astype(str) == curso_seleccionado]
+            st.dataframe(df_filtered, use_container_width=True, hide_index=True)
+        else:
+            # Si no hay selección, mostramos todo
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            
     except:
         st.warning("⚠️ Carga 'base_datos_cursos.csv'.")
 
@@ -431,7 +452,7 @@ with tab5:
         with st.expander("🔹 Gestión de Crisis & Stakeholders"):
             st.markdown("""
             **Enfoque:** Resolución asertiva de conflictos bajo presión.
-            * **Logro:** Negociación exitosa con proveedores externos (Caso Consultores Externos de Calidad) manteniendo la operatividad durante fallos críticos.
+            * **Logro:** Negociación exitosa con proveedores externos (Caso CClab) manteniendo la operatividad durante fallos críticos.
             * **Comunicación:** Traducción de riesgos técnicos a lenguaje ejecutivo para la Dirección General.
             """)
 
