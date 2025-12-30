@@ -158,7 +158,7 @@ with st.sidebar:
         st.markdown('<div style="text-align: center;">👨‍🔬 (Sin Foto)</div>', unsafe_allow_html=True)
 
     st.title("Francisco Javier García Santos")
-    st.caption("**Químico Clínico | Gerente de Calidad & Transformación Digital**")
+    st.caption("**Químico Biólogo | Gerente de Calidad & Transformación Digital**")
     st.markdown("---")
     
     st.markdown("#### 🆔 Credenciales")
@@ -452,7 +452,7 @@ with tab5:
         with st.expander("🔹 Gestión de Crisis & Stakeholders"):
             st.markdown("""
             **Enfoque:** Resolución asertiva de conflictos bajo presión.
-            * **Logro:** Negociación exitosa con proveedores externos (Caso CClab) manteniendo la operatividad durante fallos críticos.
+            * **Logro:** Negociación exitosa con proveedores externos (Caso Consultores Externos de Calidad) manteniendo la operatividad durante fallos críticos.
             * **Comunicación:** Traducción de riesgos técnicos a lenguaje ejecutivo para la Dirección General.
             """)
 
