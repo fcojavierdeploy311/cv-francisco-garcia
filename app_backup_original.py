@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-# import plotly.express as px  <-- Lo comenté porque no se usa en este código y ahorra memoria
+import plotly.express as px
 from PIL import Image
 
 # --- 1. CONFIGURACIÓN DE PÁGINA ---
@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. ESTILOS CSS (CORRECCIÓN DE CAPAS Z-INDEX Y ESTÉTICA) ---
+# --- 2. ESTILOS CSS (CORRECCIÓN DE CAPAS Z-INDEX) ---
 st.markdown("""
     <style>
     /* --- IMPORTAR FUENTE ROBOTO --- */
@@ -20,8 +20,6 @@ st.markdown("""
     /* --- VARIABLES DE COLOR --- */
     :root {
         --primary-color: #0A2463; /* Azul Corporativo */
-        --accent-color: #E63946; /* Rojo Acento para Títulos Importantes */
-        --success-color: #2A9D8F;
     }
     
     /* --- FUENTE GLOBAL --- */
@@ -36,6 +34,7 @@ st.markdown("""
         left: 0;
         width: 100%;
         background-color: white;
+        /* CORRECCIÓN AQUÍ: Bajamos a 90 para que el Sidebar (que suele ser 100) quede encima */
         z-index: 90; 
         padding: 15px 20px;
         border-bottom: 3px solid #0A2463;
@@ -49,27 +48,39 @@ st.markdown("""
     
     /* --- FORZAR QUE EL SIDEBAR Y BOTONES ESTÉN ENCIMA --- */
     section[data-testid="stSidebar"] {
-        z-index: 100 !important; 
+        z-index: 100 !important; /* El sidebar gana */
     }
     header[data-testid="stHeader"] {
-        z-index: 101 !important; 
+        z-index: 101 !important; /* Las flechas ganan a todo */
         background-color: transparent !important;
     }
     
     /* --- RESPONSIVIDAD (MEDIA QUERIES) --- */
+    
+    /* PANTALLAS GRANDES (PC/Laptop) */
     @media (min-width: 992px) {
-        .sticky-header { padding-left: 22rem; }
+        .sticky-header {
+            padding-left: 22rem; 
+        }
     }
+    
+    /* PANTALLAS MEDIANAS/TABLETS */
     @media (min-width: 576px) and (max-width: 991px) {
-        .sticky-header { padding-left: 6rem; }
+        .sticky-header {
+            padding-left: 6rem; 
+        }
     }
+    
+    /* CELULARES */
     @media (max-width: 575px) {
-        .sticky-header { 
+        .sticky-header {
             padding-left: 1rem;
             height: auto; 
             padding-top: 3.5rem; 
         }
-        .header-title { font-size: 18px !important; }
+        .header-title {
+            font-size: 18px !important;
+        }
     }
 
     /* --- EMPUJAR CONTENIDO ABAJO --- */
@@ -115,15 +126,6 @@ st.markdown("""
         margin-bottom: 15px; 
     }
     
-    /* CAJAS DE CERTIFICACIÓN (NUEVO) */
-    .cert-box {
-        border-left: 5px solid var(--success-color);
-        background-color: #F1FAEE;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 10px;
-    }
-    
     /* Métricas */
     div[data-testid="stMetricValue"] { font-size: 26px; color: var(--primary-color); }
     
@@ -149,24 +151,18 @@ st.markdown("""
 # --- 3. SIDEBAR (IDENTIDAD + ESTRATEGIA DE PRIVACIDAD) ---
 with st.sidebar:
     try:
-        # Intenta cargar la foto, si no existe no rompe la app
         image = Image.open('foto_perfil.jpg')
         st.image(image) 
     except FileNotFoundError:
-        st.markdown('<div style="text-align: center; font-size: 50px;">👨‍🔬</div>', unsafe_allow_html=True)
+        st.warning("⚠️ Sube tu foto como 'foto_perfil.jpg'")
+        st.markdown('<div style="text-align: center;">👨‍🔬 (Sin Foto)</div>', unsafe_allow_html=True)
 
     st.title("Francisco Javier García Santos")
-    
-    # --- MODIFICACIÓN IMPORTANTE: TÍTULO HÍBRIDO ---
-    st.markdown("**Químico Biólogo & Técnico en Sistemas (SEP)**")
-    st.caption("*Especialista en Automatización de Procesos & Calidad*")
-    
+    st.caption("**Químico Biólogo | Gerente de Calidad & Transformación Digital**")
     st.markdown("---")
     
-    st.markdown("#### 🆔 Credenciales Oficiales")
-    st.info("**Cédula QFB:** 6731505")
-    st.success("**Dip. Téc. Sistemas:** SEP-DGTVE (421 Hrs)") # <--- AGREGADO
-    
+    st.markdown("#### 🆔 Credenciales")
+    st.info("**Cédula Prof:** 6731505")
     st.markdown("""
     <div style="background-color: #E6F4EA; padding: 10px; border-radius: 5px; border-left: 5px solid #1E8E3E;">
         <strong>✅ Certificación Vigente:</strong><br>
@@ -187,14 +183,14 @@ with st.sidebar:
         label="📥 Dossier Técnico (Versión Pública)", 
         url=url_dossier, 
         use_container_width=True,
-        help="Documento sanitizado. Datos sensibles protegidos."
+        help="Documento sanitizado. Datos sensibles (INE, Dirección) protegidos."
     )
     
     # NOTA DE COMPETENCIA EN SEGURIDAD
     st.caption("🔒 **Nota de Seguridad:**")
     st.markdown("""
     <div style="font-size: 12px; color: #666;">
-    Este portafolio aplica principios de <b>Minimización de Datos</b>. Documentación legal resguardada en <i>Cold Storage</i>.
+    Este portafolio aplica principios de <b>Minimización de Datos</b>. La documentación legal completa (INE, Constancia Fiscal, Acta) se encuentra resguardada en <i>Cold Storage</i> y disponible exclusivamente para procesos formales de contratación.
     </div>
     """, unsafe_allow_html=True)
 
@@ -225,9 +221,9 @@ st.markdown("""
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "👑 La Joya de la Corona", 
     "🚀 Casos de Éxito", 
-    "⚙️ Ingeniería Clínica", 
-    "📜 Formación & Stack", # <-- RENOMBRADO
-    "🧠 Liderazgo"
+    "⚙️ Ingeniería Clínica & Automatización", 
+    "🛠️ Stack & Bitácora",
+    "🧠 Liderazgo & Soft Skills"
 ])
 
 # --- PESTAÑA 1: SGC INTEGRAL ---
@@ -244,9 +240,9 @@ with tab1:
         with c2:
             st.markdown("""
             **Ingeniería Documental Avanzada:**
-            * **Separación de Entornos (Dev vs Prod):** Gestión dual de archivos.
-            * **Trazabilidad Criptográfica:** Implementación de tokens de aprobación (ej. `20251210e`).
-            * **Base de Datos Relacional:** Control automático de vigencia y obsolescencia.
+            * **Separación de Entornos (Dev vs Prod):** Gestión dual de archivos: *Fuente Maestra* (Editable) vs *Documento Controlado* (PDF Final).
+            * **Trazabilidad Criptográfica:** Implementación de **Códigos de Autorización Únicos** (ej. `20251210e`) para tokenizar aprobaciones.
+            * **Base de Datos Relacional (Airtable):** Control automático de vigencia, obsolescencia y refactorización documental.
             """)
 
     # FASE 2
@@ -260,9 +256,9 @@ with tab1:
         with c4:
             st.markdown("""
             **Ingeniería de Software Aplicada:**
-            * **Persistencia Cloud (Supabase):** PostgreSQL para colaboración real-time.
-            * **Agente Cognitivo (Gemini):** Análisis de Causa Raíz (Ishikawa) automatizado.
-            * **Arquitectura Híbrida:** Frontend veloz + Backend de procesamiento.
+            * **Persistencia Cloud (Supabase):** PostgreSQL para eliminar conflictos de "archivo en uso" y permitir colaboración real-time.
+            * **Agente Cognitivo (Gemini 3 Pro):** Integración de IA entrenada vía *Prompt Engineering* como "Master Black Belt" para análisis de Causa Raíz (Ishikawa) automatizado.
+            * **Arquitectura Híbrida:** Frontend veloz en Firebase + Backend de procesamiento en Streamlit.
             """)
 
 # --- PESTAÑA 2: CASOS OPERATIVOS ---
@@ -271,7 +267,7 @@ with tab2:
     st.markdown("Implementaciones que resolvieron dolores diarios de operación, finanzas y seguridad.")
     st.divider()
 
-    # --- META-CASO ---
+    # --- META-CASO: EL PROPIO PROYECTO ---
     with st.expander("💎 Caso Meta: Esta Plataforma (CV Interactivo)", expanded=True):
         col_meta1, col_meta2 = st.columns([1, 2])
         with col_meta1:
@@ -280,203 +276,197 @@ with tab2:
         with col_meta2:
             st.markdown("""
             **El Reto:** Un CV estático (PDF) dice *que* sabes programar, pero no *demuestra* cómo lo haces.
-            **La Solución:** PWA (Progressive Web App) desplegada en producción.
-            * **Metodología Ágil:** Enfoque MVP.
-            * **Eficiencia de Costos:** Arquitectura Cloud optimizada (OPEX reducido).
-            * **Stack:** Python + Streamlit.
+            **La Solución:** Desarrollo de esta PWA (Progressive Web App) demostrando capacidad de despliegue.
+            * **Metodología Ágil:** Enfoque MVP (Producto Mínimo Viable) priorizando funcionalidad core.
+            * **Eficiencia de Costos:** Implementación de arquitectura en la nube optimizada para reducir el *Overhead* operativo (OPEX) sin sacrificar rendimiento.
+            * **Stack:** Python + Streamlit para eliminar la deuda técnica del Frontend.
             """)
 
     st.markdown("#### 🚑 Área: Operaciones & Logística")
     col_a, col_b = st.columns(2)
     with col_a:
-        with st.expander("🔹 1. Logística Inversa (AppSheet)", expanded=True):
+        with st.expander("🔹 1. Logística Inversa: Control de Envíos (AppSheet)", expanded=True):
             st.metric("KPI: Reclamos", "< 3%", "Reducción Drástica")
             st.markdown("""
+            **Dolor:** Incertidumbre en tiempos de entrega de laboratorios de referencia. Pacientes acudían sin resultados listos.
             **Solución:** App móvil de **Trazabilidad de Cadena de Custodia**.
             * Monitorización estricta (Enviado / En Proceso / Liberado).
-            * **Protocolo Proactivo:** Notificación de retrasos antes de la llegada del paciente.
+            * **Protocolo Proactivo:** Obliga al recepcionista a notificar retrasos antes de llegada del paciente.
+            * **Evidencia:** Foto obligatoria de guías de envío.
             """)
     with col_b:
-        with st.expander("🔹 2. Gestión del Conocimiento (AppSheet)", expanded=True):
-            st.metric("KPI: Abandono", "0 Eventos", "Autonomía Total")
+        with st.expander("🔹 2. Gestión del Conocimiento: Catálogo Digital (AppSheet)", expanded=True):
+            st.metric("KPI: Abandono de Área", "0 Eventos", "Autonomía Total")
             st.markdown("""
-            **Solución:** Base de Conocimiento Centralizada.
+            **Dolor:** "Cuellos de botella" por personal nuevo interrumpiendo a Seniors. Recepción quedaba vacía constantemente.
+            **Solución:** Base de Conocimiento Centralizada en App.
             * Digitalización del *Know-How* (Precios, Muestras, Tiempos).
-            * **Impacto:** Eliminación de la curva de aprendizaje para juniors.
+            * **Impacto:** Profesionalización inmediata del personal junior y eliminación de la curva de aprendizaje.
             """)
 
     st.divider()
+
     st.markdown("#### 🛡️ Seguridad & Finanzas")
     col_c, col_d = st.columns(2)
     with col_c:
-        with st.expander("🔹 3. Protocolo 'Muralla China' (DLP)", expanded=True):
+        with st.expander("🔹 3. Protocolo 'Muralla China' & Soberanía de Datos", expanded=True):
             st.metric("Activos Blindados", "104 Docs", "Propiedad Intelectual")
             st.markdown("""
-            **Estrategia 'Soberanía de Datos':**
-            * **Seguridad (DLP):** Permisos de *Solo Lectura* masivos. Bloqueo de descargas e impresión.
-            * **QA:** Pruebas de penetración internas.
+            **Contexto:** Falla crítica de proveedor externo validó la estrategia de **Soberanía de Datos**.
+            **Estrategia 'Actualización Silenciosa':**
+            * Despliegue de enlaces directos (no archivos físicos) para control de versiones.
+            * **Seguridad (DLP):** Configuración masiva de permisos: *Lectura OK / Descarga e Impresión BLOQUEADAS*.
+            * **QA:** Pruebas de penetración para garantizar blindaje.
             """)
     with col_d:
-        with st.expander("🔹 4. Monitoreo Event-Driven (Make)", expanded=True):
+        with st.expander("🔹 4. Monitoreo Financiero Event-Driven (Make)", expanded=True):
             st.markdown("""
-            **Automatización:** Webhooks que escuchan eventos de "Vencimiento" en Trello.
-            * **Optimización:** Filtros JSON para eficiencia de costos.
-            * **Resultado:** Vigilancia financiera 24/7.
+            **Automatización:** Escucha eventos de "Vencimiento" en Trello y dispara alertas vía Webhook.
+            * **Optimización:** Filtros JSON para evitar consumo innecesario de APIs (Cost Efficiency).
+            * **Resultado:** Vigilancia financiera 24/7 sin intervención humana.
             """)
+
+    st.divider()
+    
+    st.markdown("#### 🏆 Dirección")
+    with st.expander("🔹 5. Auditoría Flash & Scoring (Checkbuster)", expanded=True):
+        st.markdown("""
+        **Metodología Directiva:** Solución a la "microgestión" y subjetividad.
+        * **Estrategia:** Recorridos de 20 minutos generando un **Scoring Numérico (0-10)**.
+        * **Impacto:** Transforma una discusión subjetiva ("está sucio") en un dato objetivo ("sacaste 7.2"). Desactiva conflictos y enfoca la mejora.
+        """)
 
 # --- PESTAÑA 3: INFRAESTRUCTURA ---
 with tab3:
-    st.subheader("⚙️ Ingeniería Clínica & Infraestructura TI")
-    st.markdown("Capacidad técnica para el despliegue de **Servidores Propios (Self-Hosted)** y gestión de hardware.")
+    st.subheader("⚙️ Ingeniería Clínica & Automatización")
+    st.markdown("Capacidad técnica para el despliegue de **Servidores Propios (Self-Hosted)** aplicados a la mejora continua del laboratorio.")
     
     c_hard1, c_hard2 = st.columns(2)
     with c_hard1:
         st.markdown("### 🐧 Administración de Servidores (Linux)")
+        st.markdown("Gestión de entornos de producción en **Ubuntu / WSL**.")
         with st.container():
             st.markdown("**🛠️ Docker & Contenedores**")
             st.progress(85)
-            st.caption("Despliegue de aplicaciones aisladas (n8n, Bases de Datos) garantizando portabilidad.")
+            st.caption("Despliegue de aplicaciones aisladas (n8n, Bases de Datos) para garantizar portabilidad y limpieza del sistema operativo.")
         with st.container():
             st.markdown("**⚡ Gestión de Procesos (PM2)**")
             st.progress(90)
-            st.caption("Administración de Daemons para servicios 24/7 (Keep-alive).")
+            st.caption("Administración de procesos demonizados (Background Daemons) para mantener servicios activos 24/7 (Keep-alive) y monitoreo de logs.")
         with st.container():
             st.markdown("**🔒 Redes & Túneles (Ngrok / Cloudflare)**")
             st.progress(88)
-            st.caption("Exposición segura de localhost a internet (CGNAT Bypass).")
+            st.caption("Exposición segura de servidores locales (Localhost) a internet mediante túneles encriptados para Webhooks y acceso remoto.")
 
     with c_hard2:
-        st.markdown("### 🐍 Desarrollo de Software")
+        st.markdown("### 🐍 Desarrollo de Software (Python)")
+        st.markdown("Ingeniería de software aplicada a soluciones de calidad.")
         with st.container():
-            st.markdown("**📦 Entornos Virtuales (venv)**")
+            st.markdown("**📦 Entornos Virtuales (venv/pip)**")
             st.progress(95)
-            st.caption("Aislamiento estricto de dependencias por proyecto.")
+            st.caption("Aislamiento estricto de dependencias por proyecto para evitar conflictos de versiones y garantizar reproducibilidad.")
         with st.container():
-            st.markdown("**📊 Data Science (Pandas)**")
+            st.markdown("**📊 Data Science (Pandas/Streamlit)**")
             st.progress(90)
-            st.caption("ETL y Dashboards interactivos para KPIs normativos.")
+            st.caption("Transformación de datos (ETL) y creación de Dashboards interactivos para visualización de KPIs de cumplimiento normativo.")
         with st.container():
-            st.markdown("**💻 IDE & Versionado (Git)**")
+            st.markdown("**💻 IDE & Versionado (VS Code + Git)**")
             st.progress(85)
-            st.caption("Flujo de trabajo CI/CD y control de versiones.")
+            st.caption("Configuración avanzada de entorno de desarrollo (Google Antigravity), control de versiones y flujo de trabajo CI/CD.")
 
-# --- PESTAÑA 4: FORMACIÓN & STACK (ACTUALIZADO TOTALMENTE) ---
+# --- PESTAÑA 4: STACK & BITÁCORA ---
 with tab4:
-    st.subheader("🎓 Formación Híbrida: Salud + Tecnología")
-    
-    # 1. LA JOYA: DIPLOMADO SEP
-    st.markdown("""
-    <div class="cert-box" style="border-left-color: #0A2463; background-color: #E8F0FE;">
-        <h3 style="margin:0; color:#0A2463;">🏆 Diplomado Técnico en Sistemas Informáticos</h3>
-        <p style="margin:0; font-weight:bold;">Avalado por: Secretaría de Educación Pública (SEP) & DGTVE</p>
-        <p style="margin:0;">📅 2020 | ⏱️ <strong>421 Horas Académicas</strong></p>
-        <hr style="border-color:#0A2463;">
-        <p style="font-size:0.9em;">
-        Formación integral intensiva cubriendo los pilares de la informática moderna:
-        <br>✅ <strong>Hardware:</strong> Mantenimiento correctivo y preventivo a nivel componente.
-        <br>✅ <strong>Redes:</strong> Configuración de protocolos, cableado estructurado y Fibra Óptica.
-        <br>✅ <strong>Seguridad Informática:</strong> Análisis de vulnerabilidades y gestión de riesgos digitales.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # 2. CERTIFICACIONES DE SOPORTE
-    col_cert1, col_cert2 = st.columns(2)
-    
-    with col_cert1:
-        st.markdown("#### 📡 Infraestructura & Redes")
-        st.markdown("""
-        * **Técnico en Redes de Datos** (61 Hrs) - *Fundación Carlos Slim*
-            * *Competencia:* Arquitectura LAN/WAN, Modelo OSI, TCP/IP.
-        * **Técnico Instalador de Red** (Avance Certificado)
-            * *Competencia:* Infraestructura física y cableado.
-        """)
-        
-    with col_cert2:
-        st.markdown("#### 💻 Desarrollo & Web")
-        st.markdown("""
-        * **Asistente Web** (59 Hrs) - *Fundación Carlos Slim*
-            * *Competencia:* Fundamentos Frontend, Servidores y gestión de contenido.
-        * **Finder: Investigación Digital** (26 Hrs) - *Calif: 9.3*
-            * *Competencia:* OSINT básico y recuperación de información.
-        """)
-
-    st.divider()
-
-    # 3. STACK DE HERRAMIENTAS (ARSENAL)
     st.subheader("🧩 Arsenal de Herramientas de Negocio")
     col_izq, col_der = st.columns(2)
     with col_izq:
-        st.markdown("#### ☁️ Google Workspace & No-Code")
+        st.markdown("#### ☁️ Google Workspace Elite")
+        st.caption("Programación sobre la suite ofimática.")
         st.markdown("**Google Drive (Seguridad DLP)**")
         st.progress(100)
+        st.info("Experto en permisos granulares y blindaje de información ante externos.")
         st.markdown("**Google Sheets + Apps Script**")
         st.progress(95)
+        st.info("Desarrollo de scripts 'Append-Only' para bloquear celdas tras captura (Integridad de Datos).")
         st.markdown("**AppSheet (Desarrollo Móvil)**")
         st.progress(90)
-        st.caption("Desarrollo de Apps empresariales sin infraestructura.")
     with col_der:
-        st.markdown("#### 🗃️ Automatización & Datos")
+        st.markdown("#### 🗃️ Gestión & Automatización")
         st.markdown("**Airtable (Bases Relacionales)**")
         st.progress(90)
+        st.caption("Diseño de esquemas relacionales para trazabilidad documental.")
         st.markdown("**n8n / Make (Integraciones)**")
         st.progress(92)
-        st.caption("Certificaciones en trámite: Make Academy / Google Skillshop.")
-        st.markdown("**SQL & Supabase (Backend)**")
-        st.progress(80)
+        st.caption("Orquestación de Webhooks y APIs sin servidor.")
+        st.markdown("**Notion / ClickUp (Gestión)**")
+        st.progress(85)
         
     st.divider()
     
-    # 4. BITÁCORA CSV (LEGACY)
-    st.markdown("##### 📚 Historial de Capacitación Continua")
+    # --- BITÁCORA CON FILTRO POR ÁREA (MODIFICACIÓN KAI) ---
+    st.subheader("📈 Bitácora de Aprendizaje")
+    st.caption("Historial de capacitación técnica continua (2022-2025).")
+    
     try:
         df = pd.read_csv("base_datos_cursos.csv")
+        
+        # 1. Preparar lista de opciones única (Normalizada)
+        # SELECCIONAMOS LA COLUMNA "Area" ESPECÍFICAMENTE
         columna_filtro = "Area"
+        # Creamos lista ordenada y única para el menú
         lista_cursos = sorted(df[columna_filtro].astype(str).unique().tolist())
         
+        # 2. Menú Desplegable (Selectbox)
         curso_seleccionado = st.selectbox(
-            "Filtrar por Área:",
+            "🔍 Seleccione el Área:",
             options=lista_cursos,
             index=None,
-            placeholder="Ver todos los registros..."
+            placeholder="Seleccione una opción de la lista..."
         )
         
+        # 3. Lógica de Filtrado Exacto
         if curso_seleccionado:
+            # Filtramos donde la columna coincida EXACTAMENTE con la selección
             df_filtered = df[df[columna_filtro].astype(str) == curso_seleccionado]
             st.dataframe(df_filtered, use_container_width=True, hide_index=True)
         else:
+            # Si no hay selección, mostramos todo
             st.dataframe(df, use_container_width=True, hide_index=True)
             
     except:
-        st.info("ℹ️ La base de datos de cursos menores se está sincronizando.")
+        st.warning("⚠️ Carga 'base_datos_cursos.csv'.")
 
 # --- PESTAÑA 5: SOFT SKILLS ---
 with tab5:
     st.subheader("🧠 Competencias Directivas & Factor Humano")
+    st.markdown("Habilidades blandas (Soft Skills) cultivadas a través de la gestión de equipos y la práctica de la Bioética Clínica.")
     
     col_soft1, col_soft2 = st.columns(2)
     with col_soft1:
-        st.markdown("### 🤝 Liderazgo Transformacional")
-        with st.expander("🔹 Gestión del Cambio Digital", expanded=True):
+        st.markdown("### 🤝 Liderazgo & Gestión del Cambio")
+        with st.expander("🔹 Liderazgo Transformacional (Digital)", expanded=True):
             st.markdown("""
-            **Logro:** Migración exitosa de personal analógico a herramientas digitales (AppSheet).
-            * **Metodología:** Acompañamiento "codo a codo" para vencer la resistencia tecnológica.
+            **Enfoque:** Facilitador de la transición tecnológica.
+            * **Logro:** Gestión de la resistencia al cambio durante la migración de papel a Apps Móviles (Caso Catálogo Digital).
+            * **Metodología:** Acompañamiento "codo a codo" con personal operativo hasta lograr su autonomía digital.
             """)
-        with st.expander("🔹 Gestión de Crisis"):
+        with st.expander("🔹 Gestión de Crisis & Stakeholders"):
             st.markdown("""
-            **Enfoque:** Resolución asertiva bajo presión clínica.
-            * **Caso:** Continuidad operativa durante fallos de proveedores críticos.
+            **Enfoque:** Resolución asertiva de conflictos bajo presión.
+            * **Logro:** Negociación exitosa con proveedores externos (Caso Consultores Externos de Calidad) manteniendo la operatividad durante fallos críticos.
+            * **Comunicación:** Traducción de riesgos técnicos a lenguaje ejecutivo para la Dirección General.
             """)
 
     with col_soft2:
-        st.markdown("### ⚖️ Bioética & Cultura")
-        with st.expander("🔹 Privacidad por Diseño (Privacy by Design)", expanded=True):
+        st.markdown("### ⚖️ Bioética & Ética Profesional")
+        with st.expander("🔹 Bioética Clínica & Privacidad", expanded=True):
             st.markdown("""
-            **Práctica:** Implementación técnica de candados éticos en el manejo de datos de pacientes (DLP).
+            **Enfoque:** Privacidad por Diseño (Privacy by Design).
+            * **Práctica:** Implementación de protocolos DLP (Data Loss Prevention) en Google Drive para proteger datos sensibles de pacientes.
+            * **Principio:** Garantía de confidencialidad en flujos automatizados.
             """)
-        with st.expander("🔹 Cultura Justa (Just Culture)"):
+        with st.expander("🔹 Inteligencia Emocional & Cultura Justa"):
             st.markdown("""
-            **Impacto:** Transformación de auditorías punitivas a sistemas de mejora continua basados en datos (Scoring objetivo).
+            **Enfoque:** Seguridad Psicológica en el trabajo.
+            * **Práctica:** Uso de sistemas objetivos (Checkbuster Scoring) para eliminar sesgos personales en las auditorías.
+            * **Resultado:** Transformación de la cultura de "buscar culpables" a "buscar causas raíz" (Root Cause Analysis).
             """)
