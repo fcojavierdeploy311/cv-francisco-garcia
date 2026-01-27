@@ -1,1 +1,21 @@
+# --- 1. ENTORNOS VIRTUALES (La "Caja de Herramientas") ---
+# Ignoramos cualquier variante de nombre común
 venv/
+.venv/
+env/
+.env/
+
+# --- 2. SECRETOS Y LLAVES (¡NIVEL CRÍTICO!) ---
+# Esto es lo más importante. Nunca subir esto.
+.streamlit/secrets.toml
+.env
+*.env
+
+# --- 3. ARCHIVOS BASURA DE PYTHON (Compilados) ---
+# No sirven de nada en el repo y ensucian
+__pycache__/
+*.pyc
+
+# --- 4. BASURA DEL SISTEMA OPERATIVO ---
+.DS_Store
+Thumbs.db

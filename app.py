@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-# import plotly.express as px  <-- Lo comenté porque no se usa en este código y ahorra memoria
 from PIL import Image
+import backend  # <--- TU CEREBRO CONECTADO
 
 # --- 1. CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
@@ -11,201 +11,107 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. ESTILOS CSS (CORRECCIÓN DE CAPAS Z-INDEX Y ESTÉTICA) ---
-st.markdown("""
+# --- 2. MOTOR DE ESTILOS ---
+def cargar_estilos():
+    st.markdown("""
     <style>
-    /* --- IMPORTAR FUENTE ROBOTO --- */
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
-
-    /* --- VARIABLES DE COLOR --- */
-    :root {
-        --primary-color: #0A2463; /* Azul Corporativo */
-        --accent-color: #E63946; /* Rojo Acento para Títulos Importantes */
-        --success-color: #2A9D8F;
-    }
+    :root { --primary-color: #0A2463; --accent-color: #E63946; --success-color: #2A9D8F; }
+    html, body, [class*="css"] { font-family: 'Roboto', sans-serif; }
     
-    /* --- FUENTE GLOBAL --- */
-    html, body, [class*="css"] {
-        font-family: 'Roboto', sans-serif;
-    }
-
-    /* --- HEADER FIJO (AJUSTADO) --- */
+    /* HEADER FIJO */
     .sticky-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        background-color: white;
-        z-index: 90; 
-        padding: 15px 20px;
-        border-bottom: 3px solid #0A2463;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        height: 90px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        position: fixed; top: 0; left: 0; width: 100%;
+        background-color: white; z-index: 90; 
+        padding: 15px 20px; border-bottom: 3px solid #0A2463;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: 90px;
+        display: flex; flex-direction: column; justify-content: center;
         transition: padding-left 0.3s ease; 
     }
+    section[data-testid="stSidebar"] { z-index: 100 !important; }
+    header[data-testid="stHeader"] { z-index: 101 !important; background-color: transparent !important; }
     
-    /* --- FORZAR QUE EL SIDEBAR Y BOTONES ESTÉN ENCIMA --- */
-    section[data-testid="stSidebar"] {
-        z-index: 100 !important; 
-    }
-    header[data-testid="stHeader"] {
-        z-index: 101 !important; 
-        background-color: transparent !important;
-    }
+    @media (min-width: 992px) { .sticky-header { padding-left: 22rem; } }
+    @media (min-width: 576px) and (max-width: 991px) { .sticky-header { padding-left: 6rem; } }
+    @media (max-width: 575px) { .sticky-header { padding-left: 1rem; height: auto; padding-top: 3.5rem; } .header-title { font-size: 18px !important; } }
     
-    /* --- RESPONSIVIDAD (MEDIA QUERIES) --- */
-    @media (min-width: 992px) {
-        .sticky-header { padding-left: 22rem; }
-    }
-    @media (min-width: 576px) and (max-width: 991px) {
-        .sticky-header { padding-left: 6rem; }
-    }
-    @media (max-width: 575px) {
-        .sticky-header { 
-            padding-left: 1rem;
-            height: auto; 
-            padding-top: 3.5rem; 
-        }
-        .header-title { font-size: 18px !important; }
-    }
-
-    /* --- EMPUJAR CONTENIDO ABAJO --- */
-    .block-container {
-        padding-top: 120px !important; 
-        padding-bottom: 2rem !important;
-    }
-
-    /* --- TIPOGRAFÍA DEL HEADER --- */
-    .header-title {
-        color: var(--primary-color) !important;
-        font-size: 26px !important;
-        font-weight: 700;
-        line-height: 1.2;
-        margin: 0;
-    }
-    .header-subtitle {
-        color: #555;
-        font-size: 15px !important;
-        font-weight: 300;
-        margin: 0;
-    }
-
-    /* --- ESTILOS GENERALES --- */
+    .block-container { padding-top: 120px !important; padding-bottom: 2rem !important; }
+    
+    .header-title { color: var(--primary-color) !important; font-size: 26px !important; font-weight: 700; margin: 0; }
+    .header-subtitle { color: #555; font-size: 15px !important; font-weight: 300; margin: 0; }
     h1, h2, h3, h4 { color: var(--primary-color) !important; }
     
-    /* Foto de Perfil */
-    [data-testid="stSidebar"] img {
-        width: 160px !important; 
-        height: 210px !important;
-        border-radius: 50%; 
-        border: 4px solid #0A2463;
-        object-fit: cover; 
-        margin: 0 auto 20px auto; 
-        display: block;
-    }
-
-    /* Tarjetas (Expanders) */
-    .stExpander { 
-        border: 1px solid #E6E9EF; 
-        border-radius: 12px; 
-        background: white; 
-        margin-bottom: 15px; 
-    }
-    
-    /* CAJAS DE CERTIFICACIÓN (NUEVO) */
-    .cert-box {
-        border-left: 5px solid var(--success-color);
-        background-color: #F1FAEE;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 10px;
-    }
-    
-    /* Métricas */
-    div[data-testid="stMetricValue"] { font-size: 26px; color: var(--primary-color); }
-    
-    /* Barras de Progreso */
-    .stProgress > div > div > div > div { background-color: var(--primary-color); }
-    
-    /* Botón Drive Personalizado */
-    .stLinkButton > a {
-        background: white; 
-        color: #0A2463; 
-        border: 2px solid #0A2463;
-        font-weight: bold; 
-        text-align: center; 
-        border-radius: 5px;
-    }
-    .stLinkButton > a:hover { 
-        background: #0A2463; 
-        color: white; 
-    }
+    [data-testid="stSidebar"] img { width: 160px !important; height: 210px !important; border-radius: 50%; border: 4px solid #0A2463; object-fit: cover; margin: 0 auto 20px auto; display: block; }
+    .stExpander { border: 1px solid #E6E9EF; border-radius: 12px; background: white; margin-bottom: 15px; }
+    .cert-box { border-left: 5px solid var(--success-color); background-color: #F1FAEE; padding: 15px; border-radius: 5px; margin-bottom: 10px; }
+    .stLinkButton > a { background: white; color: #0A2463; border: 2px solid #0A2463; font-weight: bold; text-align: center; border-radius: 5px; }
+    .stLinkButton > a:hover { background: #0A2463; color: white; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. SIDEBAR (IDENTIDAD + ESTRATEGIA DE PRIVACIDAD) ---
+cargar_estilos()
+
+# --- 3. SIDEBAR COMPLETO ---
 with st.sidebar:
     try:
-        # Intenta cargar la foto, si no existe no rompe la app
         image = Image.open('foto_perfil.jpg')
         st.image(image) 
     except FileNotFoundError:
         st.markdown('<div style="text-align: center; font-size: 50px;">👨‍🔬</div>', unsafe_allow_html=True)
 
     st.title("Francisco Javier García Santos")
-    
-    # --- MODIFICACIÓN IMPORTANTE: TÍTULO HÍBRIDO ---
     st.markdown("**Químico Biólogo & Técnico en Sistemas (SEP)**")
     st.caption("*Especialista en Automatización de Procesos & Calidad*")
-    
     st.markdown("---")
     
     st.markdown("#### 🆔 Credenciales Oficiales")
     st.info("**Cédula QFB:** 6731505")
-    st.success("**Dip. Téc. Sistemas:** SEP-DGTVE (421 Hrs)") # <--- AGREGADO
+    st.success("**Dip. Téc. Sistemas:** SEP-DGTVE (421 Hrs)") 
     
+    # CORRECCIÓN VIGENCIA
     st.markdown("""
-    <div style="background-color: #E6F4EA; padding: 10px; border-radius: 5px; border-left: 5px solid #1E8E3E;">
-        <strong>✅ Certificación Vigente:</strong><br>
-        Toma de Muestra<br>
-        <small>(2022 - 2025)</small>
+    <div style="background-color: #F0F2F6; padding: 10px; border-radius: 5px; border-left: 5px solid #0A2463;">
+        <strong>📜 Certificación Técnica:</strong><br>
+        Toma de Muestras de Sangre Venosa<br>
+        <small style="color: #555;">Periodo: 2023 - 2025</small>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("---")
-    
-    # --- ESTRATEGIA: PRIVACIDAD POR DISEÑO (DLP) ---
     st.markdown("#### 📂 Evidencia Documental")
-    
-    # ENLACE INTEGRADO (Versión Pública Sanitizada)
     url_dossier = "https://drive.google.com/file/d/1UPKlftUKFoMNc_kImouIyvFsHPwkXapN/view?usp=drive_link" 
-    
-    st.link_button(
-        label="📥 Dossier Técnico (Versión Pública)", 
-        url=url_dossier, 
-        use_container_width=True,
-        help="Documento sanitizado. Datos sensibles protegidos."
-    )
-    
-    # NOTA DE COMPETENCIA EN SEGURIDAD
+    st.link_button(label="📥 Dossier Técnico (Versión Pública)", url=url_dossier, use_container_width=True, help="Datos sensibles protegidos.")
     st.caption("🔒 **Nota de Seguridad:**")
-    st.markdown("""
-    <div style="font-size: 12px; color: #666;">
-    Este portafolio aplica principios de <b>Minimización de Datos</b>. Documentación legal resguardada en <i>Cold Storage</i>.
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div style="font-size: 12px; color: #666;">Minimización de Datos aplicada.</div>', unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown("#### 📬 Contacto")
     st.write("📍 **Base:** Oaxaca, México")
     st.write("📧 **Email:** qbfranciscojavier@gmail.com")
 
-# --- 4. CUERPO PRINCIPAL (CON STICKY HEADER HTML) ---
+    st.divider()
 
-# Inyección HTML del Header Fijo
+    # --- PANEL ADMIN (NUEVO) ---
+    with st.expander("⚙️ Acceso Admin (Privado)"):
+        password = st.text_input("Clave de Acceso", type="password")
+        if password == "kaizen":
+            st.success("🔓 Modo Editor Activado")
+            with st.form("subir_curso_form"):
+                st.markdown("### Nuevo Curso")
+                f_titulo = st.text_input("Nombre del Curso")
+                f_inst = st.text_input("Institución")
+                f_cat = st.selectbox("Área", ["Salud", "Tecnología", "Soft Skills", "Calidad"])
+                f_fecha = st.date_input("Fecha Emisión")
+                f_archivo = st.file_uploader("Evidencia (Imagen/PDF)", type=["png", "jpg", "jpeg", "pdf"])
+                if st.form_submit_button("⬆️ Subir a la Nube"):
+                    if f_titulo and f_inst:
+                        with st.spinner("Subiendo..."):
+                            if backend.subir_curso(f_titulo, f_inst, f_fecha, f_cat, f_archivo):
+                                st.success("✅ Guardado"); st.balloons()
+                            else: st.error("❌ Error")
+                    else: st.warning("Datos faltantes")
+
+# --- 4. HEADER Y CUERPO PRINCIPAL ---
 st.markdown("""
     <div class="sticky-header">
         <div class="header-title">🧬 Arquitectura de Sistemas de Calidad & Lab. Clínico</div>
@@ -213,7 +119,6 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Texto introductorio
 st.markdown("""
 <div style="background-color: #F4F7F9; padding: 20px; border-radius: 10px; border-left: 5px solid #0A2463; font-style: italic; font-size: 16px; color: #333; margin-top: 10px;">
 "Gestión de Calidad 4.0: Elevando el estándar del Laboratorio Clínico mediante la <b>Automatización de Procesos, Seguridad del Paciente y Toma de Decisiones Basada en Datos</b>."
@@ -221,21 +126,15 @@ st.markdown("""
 <br>
 """, unsafe_allow_html=True)
 
-# --- 5. ESTRUCTURA DE PESTAÑAS ---
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "👑 La Joya de la Corona", 
-    "🚀 Casos de Éxito", 
-    "⚙️ Ingeniería Clínica", 
-    "📜 Formación & Stack", # <-- RENOMBRADO
-    "🧠 Liderazgo"
+    "👑 La Joya", "🚀 Casos de Éxito", "⚙️ Ing. Clínica", "📜 Formación Viva", "🧠 Liderazgo"
 ])
 
-# --- PESTAÑA 1: SGC INTEGRAL ---
+# --- TAB 1: SGC (RESTAURADO COMPLETO) ---
 with tab1:
     st.subheader("🏛️ Ecosistema SGC: Evolución y Futuro")
     st.markdown("Trayectoria completa de transformación digital: Del control documental estricto a la Inteligencia Artificial.")
     
-    # FASE 1
     with st.expander("🏗️ Fase 1: Arquitectura de la Verdad Única (Implementado)", expanded=True):
         c1, c2 = st.columns([1, 2])
         with c1:
@@ -249,10 +148,8 @@ with tab1:
             * **Base de Datos Relacional:** Control automático de vigencia y obsolescencia.
             """)
 
-    # FASE 2
     with st.expander("🧠 Fase 2: SGC V4.0 - Arquitectura Híbrida & IA (Roadmap)", expanded=True):
         st.info("💡 **Proyecto Estratégico:** Diseño de arquitectura para eliminar dependencias locales y potenciar el análisis cognitivo.")
-        
         c3, c4 = st.columns([1, 2])
         with c3:
             st.markdown("**Stack Avanzado (Next-Gen):**")
@@ -265,13 +162,12 @@ with tab1:
             * **Arquitectura Híbrida:** Frontend veloz + Backend de procesamiento.
             """)
 
-# --- PESTAÑA 2: CASOS OPERATIVOS ---
+# --- TAB 2: CASOS (RESTAURADO COMPLETO) ---
 with tab2:
     st.subheader("📌 Soluciones de Impacto Inmediato")
     st.markdown("Implementaciones que resolvieron dolores diarios de operación, finanzas y seguridad.")
     st.divider()
 
-    # --- META-CASO ---
     with st.expander("💎 Caso Meta: Esta Plataforma (CV Interactivo)", expanded=True):
         col_meta1, col_meta2 = st.columns([1, 2])
         with col_meta1:
@@ -324,7 +220,7 @@ with tab2:
             * **Resultado:** Vigilancia financiera 24/7.
             """)
 
-# --- PESTAÑA 3: INFRAESTRUCTURA ---
+# --- TAB 3: INFRAESTRUCTURA (RESTAURADO COMPLETO) ---
 with tab3:
     st.subheader("⚙️ Ingeniería Clínica & Infraestructura TI")
     st.markdown("Capacidad técnica para el despliegue de **Servidores Propios (Self-Hosted)** y gestión de hardware.")
@@ -360,11 +256,11 @@ with tab3:
             st.progress(85)
             st.caption("Flujo de trabajo CI/CD y control de versiones.")
 
-# --- PESTAÑA 4: FORMACIÓN & STACK (ACTUALIZADO TOTALMENTE) ---
+# --- TAB 4: FORMACIÓN VIVA (HÍBRIDO: ESTÁTICO + SUPABASE) ---
 with tab4:
-    st.subheader("🎓 Formación Híbrida: Salud + Tecnología")
+    st.subheader("🎓 Formación & Certificaciones (Base de Datos Viva)")
     
-    # 1. LA JOYA: DIPLOMADO SEP
+    # 1. LA JOYA (ESTÁTICA)
     st.markdown("""
     <div class="cert-box" style="border-left-color: #0A2463; background-color: #E8F0FE;">
         <h3 style="margin:0; color:#0A2463;">🏆 Diplomado Técnico en Sistemas Informáticos</h3>
@@ -378,81 +274,69 @@ with tab4:
         <br>✅ <strong>Seguridad Informática:</strong> Análisis de vulnerabilidades y gestión de riesgos digitales.
         </p>
     </div>
+    <br>
     """, unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
 
-    # 2. CERTIFICACIONES DE SOPORTE
+    # 2. CERTIFICACIONES SOPORTE (ESTÁTICO)
     col_cert1, col_cert2 = st.columns(2)
-    
     with col_cert1:
         st.markdown("#### 📡 Infraestructura & Redes")
-        st.markdown("""
-        * **Técnico en Redes de Datos** (61 Hrs) - *Fundación Carlos Slim*
-            * *Competencia:* Arquitectura LAN/WAN, Modelo OSI, TCP/IP.
-        * **Técnico Instalador de Red** (Avance Certificado)
-            * *Competencia:* Infraestructura física y cableado.
-        """)
-        
+        st.markdown("* **Técnico en Redes de Datos** (61 Hrs) - *Fundación Carlos Slim*\n    * *Competencia:* Arquitectura LAN/WAN, Modelo OSI, TCP/IP.\n* **Técnico Instalador de Red** (Avance Certificado)\n    * *Competencia:* Infraestructura física y cableado.")
     with col_cert2:
         st.markdown("#### 💻 Desarrollo & Web")
-        st.markdown("""
-        * **Asistente Web** (59 Hrs) - *Fundación Carlos Slim*
-            * *Competencia:* Fundamentos Frontend, Servidores y gestión de contenido.
-        * **Finder: Investigación Digital** (26 Hrs) - *Calif: 9.3*
-            * *Competencia:* OSINT básico y recuperación de información.
-        """)
+        st.markdown("* **Asistente Web** (59 Hrs) - *Fundación Carlos Slim*\n    * *Competencia:* Fundamentos Frontend, Servidores.\n* **Finder: Investigación Digital** (26 Hrs) - *Calif: 9.3*\n    * *Competencia:* OSINT básico.")
 
     st.divider()
 
-    # 3. STACK DE HERRAMIENTAS (ARSENAL)
+    # 3. STACK HERRAMIENTAS
     st.subheader("🧩 Arsenal de Herramientas de Negocio")
     col_izq, col_der = st.columns(2)
     with col_izq:
         st.markdown("#### ☁️ Google Workspace & No-Code")
-        st.markdown("**Google Drive (Seguridad DLP)**")
-        st.progress(100)
-        st.markdown("**Google Sheets + Apps Script**")
-        st.progress(95)
-        st.markdown("**AppSheet (Desarrollo Móvil)**")
-        st.progress(90)
-        st.caption("Desarrollo de Apps empresariales sin infraestructura.")
+        st.markdown("**Google Drive (Seguridad DLP)**"); st.progress(100)
+        st.markdown("**Google Sheets + Apps Script**"); st.progress(95)
+        st.markdown("**AppSheet (Desarrollo Móvil)**"); st.progress(90)
     with col_der:
         st.markdown("#### 🗃️ Automatización & Datos")
-        st.markdown("**Airtable (Bases Relacionales)**")
-        st.progress(90)
-        st.markdown("**n8n / Make (Integraciones)**")
-        st.progress(92)
-        st.caption("Certificaciones en trámite: Make Academy / Google Skillshop.")
-        st.markdown("**SQL & Supabase (Backend)**")
-        st.progress(80)
-        
-    st.divider()
-    
-    # 4. BITÁCORA CSV (LEGACY)
-    st.markdown("##### 📚 Historial de Capacitación Continua")
-    try:
-        df = pd.read_csv("base_datos_cursos.csv")
-        columna_filtro = "Area"
-        lista_cursos = sorted(df[columna_filtro].astype(str).unique().tolist())
-        
-        curso_seleccionado = st.selectbox(
-            "Filtrar por Área:",
-            options=lista_cursos,
-            index=None,
-            placeholder="Ver todos los registros..."
-        )
-        
-        if curso_seleccionado:
-            df_filtered = df[df[columna_filtro].astype(str) == curso_seleccionado]
-            st.dataframe(df_filtered, use_container_width=True, hide_index=True)
-        else:
-            st.dataframe(df, use_container_width=True, hide_index=True)
-            
-    except:
-        st.info("ℹ️ La base de datos de cursos menores se está sincronizando.")
+        st.markdown("**Airtable (Bases Relacionales)**"); st.progress(90)
+        st.markdown("**n8n / Make (Integraciones)**"); st.progress(92)
+        st.markdown("**SQL & Supabase (Backend)**"); st.progress(80)
 
-# --- PESTAÑA 5: SOFT SKILLS ---
+    st.divider()
+
+    # 4. LISTADO DINÁMICO (SUPABASE)
+    st.markdown("##### 📚 Historial de Capacitación (Live Data)")
+    
+    # LLAMADA AL BACKEND
+    datos_cursos = backend.obtener_cursos()
+    
+    if datos_cursos:
+        df = pd.DataFrame(datos_cursos)
+        # Filtros
+        categorias = ["Todas"] + sorted(df['categoria'].unique().tolist())
+        filtro = st.selectbox("Filtrar por Área:", options=categorias)
+        
+        if filtro != "Todas":
+            df = df[df['categoria'] == filtro]
+        
+        # Renderizado de Tarjetas
+        for index, row in df.iterrows():
+            with st.container():
+                c1, c2 = st.columns([3, 1])
+                with c1:
+                    icono = "💊" if row['categoria'] == "Salud" else "💻" if row['categoria'] == "Tecnología" else "📘"
+                    st.markdown(f"**{icono} {row['titulo']}**")
+                    st.caption(f"🏫 {row['institucion']} | 📅 {row['fecha_emision']}")
+                with c2:
+                    if row['evidencia_url']:
+                        st.link_button("📄 Ver Evidencia", row['evidencia_url'])
+                    else:
+                        st.caption("🚫 Sin Evidencia")
+                st.divider()
+    else:
+        st.info("ℹ️ Cargando base de datos o sin registros. (Ejecuta el script de migración si es la primera vez).")
+
+# --- TAB 5: SOFT SKILLS (RESTAURADO COMPLETO) ---
 with tab5:
     st.subheader("🧠 Competencias Directivas & Factor Humano")
     
